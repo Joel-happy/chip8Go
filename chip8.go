@@ -89,7 +89,86 @@ func (chip8 *Chip8) decodeOpcode(opcode uint16) {
         chip8.pc += 2
         }
     case 0x5000:
-        
+        // Skip next instruction if Vx == Vy.
+        x := int((opcode >> 8) & 0x0F) // Extraire le numéro du registre Vx (les 4 bits du milieu).
+        y := int((opcode >> 4) & 0x0F) // Extraire le numéro du registre Vy (les 4 bits de droite).
+
+        if chip8.registers[x] == chip8.registers[y] {
+        // Si Vx est égal à Vy, incrémentez le compteur de programme (pc) de 2 pour sauter l'instruction suivante.
+        chip8.pc += 2
+        }
+    case 0x6000:
+        // Set Vx = kk.
+        x := int((opcode >> 8) & 0x0F) // Extraire le numéro du registre Vx (les 4 bits du milieu).
+        kk := uint8(opcode & 0x00FF)   // Extraire la valeur immédiate kk (les 8 bits de droite).
     
+        chip8.registers[x] = kk // Mettre la valeur kk dans le registre Vx.
+    case 0x7000:
+        x := int((opcode >> 8) & 0x0F) // Extraire le numéro du registre Vx (les 4 bits du milieu).
+        kk := uint8(opcode & 0x00FF)   // Extraire la valeur immédiate kk (les 8 bits de droite).
+    
+        chip8.registers[x] += kk // Ajouter la valeur kk à la valeur du registre Vx.
+    
+    case 0x8000:
+        x := int((opcode >> 8) & 0x0F) // Numéro du registre Vx.
+        y := int((opcode >> 4) & 0x0F) // Numéro du registre Vy.
+    
+        switch opcode & 0x000F {
+        case 0x0000:
+            // LD Vx, Vy : Définir Vx = Vy.
+            chip8.registers[x] = chip8.registers[y]
+    
+        case 0x0001:
+            // OR Vx, Vy : Définir Vx = Vx OR Vy.
+            chip8.registers[x] |= chip8.registers[y]
+    
+        case 0x0002:
+            // AND Vx, Vy : Définir Vx = Vx AND Vy.
+            chip8.registers[x] &= chip8.registers[y]
+    
+        case 0x0003:
+            // XOR Vx, Vy : Définir Vx = Vx XOR Vy.
+            chip8.registers[x] ^= chip8.registers[y]
+    
+        case 0x0004:
+            // ADD Vx, Vy : Définir Vx = Vx + Vy, set VF = carry.
+            if chip8.registers[y] > 0xFF-chip8.registers[x] {
+                chip8.registers[0xF] = 1 // La retenue dépasse 8 bits.
+            } else {
+                chip8.registers[0xF] = 0
+            }
+            chip8.registers[x] += chip8.registers[y]
+    
+        case 0x0005:
+            // SUB Vx, Vy : Définir Vx = Vx - Vy, set VF = NOT borrow.
+            if chip8.registers[x] > chip8.registers[y] {
+                chip8.registers[0xF] = 1 // Pas d'emprunt.
+            } else {
+                chip8.registers[0xF] = 0
+            }
+            chip8.registers[x] -= chip8.registers[y]
+    
+        case 0x0006:
+            // SHR Vx {, Vy} : Définir Vx = Vx SHR 1, set VF = bit le moins significatif.
+            chip8.registers[0xF] = chip8.registers[x] & 0x1 // Bit le moins significatif avant le décalage.
+            chip8.registers[x] >>= 1
+    
+        case 0x0007:
+            // SUBN Vx, Vy : Définir Vx = Vy - Vx, set VF = NOT borrow.
+            if chip8.registers[y] > chip8.registers[x] {
+                chip8.registers[0xF] = 1 // Pas d'emprunt.
+            } else {
+                chip8.registers[0xF] = 0
+            }
+            chip8.registers[x] = chip8.registers[y] - chip8.registers[x]
+    
+        case 0x000E:
+            // SHL Vx {, Vy} : Définir Vx = Vx SHL 1, set VF = bit le plus significatif.
+            chip8.registers[0xF] = (chip8.registers[x] >> 7) & 0x1 // Bit le plus significatif avant le décalage.
+            chip8.registers[x] <<= 1
+        }
+    case 0x9000:
+        
+
 }
 }
