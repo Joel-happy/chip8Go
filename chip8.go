@@ -16,6 +16,8 @@ type Chip8 struct {
     screen        [64][32]uint8
     timerSpeed    uint8
 	op  uint16
+    pc    uint16
+    sp uint8
 
 }
 func (chip8 *Chip8) loadProgram(program []byte, startAddress uint16) {
@@ -52,9 +54,42 @@ func (chip8 *Chip8) decodeOpcode(opcode uint16) {
 			 chip8.pc = returnAddress
 		 }
 	case 0x1000:
+        // Jump to location nnn.
+        address := opcode & 0x0FFF
+        chip8.pc = address
 		
 	case 0x2000:
+        address := opcode & 0x0FFF
 
+        // Incrémentez le pointeur de pile (stack pointer).
+        chip8.sp++
 
+        // Placez l'adresse actuelle du PC (avant l'appel de sous-routine) en haut de la pile.
+        chip8.stack[chip8.sp] = chip8.pc
+
+        // Mettez à jour le PC avec l'adresse de la sous-routine.
+        chip8.pc = address
+
+    case 0x3000:
+        // Skip next instruction if Vx == kk.
+        x := (opcode >> 8) & 0x0F  // Extraire le numéro du registre Vx (les 4 bits du milieu).
+        kk := uint8(opcode & 0x00FF)  // Extraire la valeur immédiate kk (les 8 bits de droite).
+
+        if chip8.registers[x] == kk {
+            // Si Vx est égal à kk, incrémentez le compteur de programme (pc) de 2 pour sauter l'instruction suivante.
+            chip8.pc += 2
+        }
+    case 0x4000:
+        // Skip next instruction if Vx != kk.
+         x := int((opcode >> 8) & 0x0F) // Extraire le numéro du registre Vx (les 4 bits du milieu).
+        kk := uint8(opcode & 0x00FF)   // Extraire la valeur immédiate kk (les 8 bits de droite).
+
+        if chip8.registers[x] != kk {
+        // Si Vx n'est pas égal à kk, incrémentez le compteur de programme (pc) de 2 pour sauter l'instruction suivante.
+        chip8.pc += 2
+        }
+    case 0x5000:
+        
+    
 }
 }
