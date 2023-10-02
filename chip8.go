@@ -193,3 +193,107 @@ func (chip8 *Chip8) decodeOpcode(opcode uint16) {
 	}
 }
 */
+package main
+
+import (
+	"fmt"
+	"os"
+	"time"
+
+	"github.com/veandco/go-sdl2/sdl"
+)
+
+const (
+	MemorySize   = 4096
+	StartAddress = 512
+	RegisterSize = 16
+)
+
+type CPU struct {
+	Memory       [MemorySize]uint8
+	V            [RegisterSize]uint8
+	I            uint16
+	JumpTable    [RegisterSize]uint16
+	JumpCount    uint8
+	GameCounter  uint8
+	SoundCounter uint8
+	PC           uint16
+}
+
+var cpu CPU
+
+func initializeCPU() {
+	for i := 0; i < MemorySize; i++ {
+		cpu.Memory[i] = 0
+	}
+
+	for i := 0; i < RegisterSize; i++ {
+		cpu.V[i] = 0
+		cpu.JumpTable[i] = 0
+	}
+
+	cpu.PC = StartAddress
+	cpu.JumpCount = 0
+	cpu.GameCounter = 0
+	cpu.SoundCounter = 0
+	cpu.I = 0
+}
+
+func decrementCounters() {
+	if cpu.GameCounter > 0 {
+		cpu.GameCounter--
+	}
+
+	if cpu.SoundCounter > 0 {
+		cpu.SoundCounter--
+	}
+}
+
+func main() {
+	// Initialisez le CPU
+	initializeCPU()
+
+	// Initialisez SDL
+	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
+		fmt.Println("Erreur lors de l'initialisation de SDL:", err)
+		os.Exit(1)
+	}
+	defer sdl.Quit()
+
+	// Créez une fenêtre SDL
+	window, err := sdl.CreateWindow("Chip-8 Emulator", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, 640, 320, sdl.WINDOW_SHOWN)
+	if err != nil {
+		fmt.Println("Erreur lors de la création de la fenêtre:", err)
+		os.Exit(1)
+	}
+	defer window.Destroy()
+
+	// Créez un rendu SDL
+	renderer, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
+	if err != nil {
+		fmt.Println("Erreur lors de la création du rendu:", err)
+		os.Exit(1)
+	}
+	defer renderer.Destroy()
+
+	// Boucle principale de votre émulateur ici
+	for {
+		// Gérez les événements SDL (entrées utilisateur) si nécessaire
+		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+			switch event.(type) {
+			case *sdl.QuitEvent:
+				return // Quittez la boucle principale si l'utilisateur ferme la fenêtre
+			}
+		}
+
+		// Mettez à jour l'affichage et la logique du jeu
+		// Vous devrez ajouter la logique spécifique à l'émulateur Chip-8 ici
+
+		// Décrémentez les compteurs du jeu et du son
+		decrementCounters()
+
+		// Pause pour respecter la fréquence d'exécution souhaitée
+		time.Sleep(time.Millisecond * 4) // 4 ms pour une fréquence de 250 Hz
+	}
+}
+
