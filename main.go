@@ -1,65 +1,110 @@
 package main
 
 import (
-	"github.com/hajimehoshi/ebiten/v2"
+	"chip8/cpu"
+	"flag"
+	"os"
+
 	"image/color"
+
+  setupkeys "chip8/setupkeys"
+
+	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/audio"
+	"github.com/hajimehoshi/ebiten/audio/mp3"
+	"github.com/hajimehoshi/ebiten/ebitenutil"
 )
 
-const (
-	Largeur       = 64 // Nombre de pixels en largeur
-	Longueur      = 32 // Nombre de pixels en longueur
-	DimPixel      = 8  // Taille d'un pixel (carré de côté 8)
-	LargeurEcran  = Largeur * DimPixel
-	LongueurEcran = Longueur * DimPixel
-)
+var chip8 cpu.Chip8
+var audioPlayer *audio.Player
+var square *ebiten.Image
 
-type Pixel struct {
-	Position ebiten.Vec2 // Regroupe l'abscisse et l'ordonnée
-	Couleur  color.Color // Comme son nom l'indique, c'est la couleur
+func init() {
+	square, _ = ebiten.NewImage(10, 10, ebiten.FilterNearest)
+	square.Fill(color.White)
 }
 
-var pixel [Largeur][Longueur]Pixel // Déclaration de la variable globale pixel
-
-var Noir = color.RGBA{0, 0, 0, 0} //noir avec une opacité nulle
-
-func initialiserPixel() {
-	for x := 0; x < Largeur; x++ {
-		for y := 0; y < Longueur; y++ {
-			pixel[x][y].Position = ebiten.Vec2{
-				float64(x * DimPixel),
-				float64(y * DimPixel),
-			}
-			pixel[x][y].Couleur = Noir // On initialise par défaut les pixels en noir
+func getInput() bool {
+	for key, value := range setupkeys.KeyMap {
+		if ebiten.IsKeyPressed(key) {
+			chip8.Keys[value] = 0x01
+			return true
 		}
 	}
+	return false
 }
 
-type Game struct{}
+func update(screen *ebiten.Image) error {
+	screen.Fill(color.NRGBA{0x00, 0x00, 0x00, 0xff})
 
-func (g Game) Update() error {
-	//implémenter logique de mise à jour du jeu
+	for i := 0; i < 10; i++ {
+		chip8.Draw = false
+		chip8.Inputflag = false
+		gotInput := true
+		chip8.Run()
+
+		if chip8.Inputflag {
+			gotInput = getInput()
+			if !gotInput {
+				chip8.Pc = chip8.Pc - 2
+			}
+		}
+
+		if chip8.Draw || !gotInput {
+			for i := 0; i < 32; i++ {
+				for j := 0; j < 64; j++ {
+					if chip8.Display[i][j] == 0x01 {
+
+						opts := &ebiten.DrawImageOptions{}
+
+						opts.GeoM.Translate(float64(j*10), float64(i*10))
+
+						screen.DrawImage(square, opts)
+					}
+				}
+			}
+		}
+
+		for key, value := range setupkeys.KeyMap {
+			if ebiten.IsKeyPressed(key) {
+				chip8.Keys[value] = 0x01
+			} else {
+				chip8.Keys[value] = 0x00
+			}
+		}
+
+		if chip8.SoundTimer > 0 {
+			audioPlayer.Play()
+			audioPlayer.Rewind()
+		}
+
+	}
+
 	return nil
 }
 
-func (g Game) Draw(screen *ebiten.Image) {
-	//implémenter logique de rendu du jeu
-}
+func start() {
+  rom := flag.String("rom", "", "")
+  flag.Parse()
 
-func (g Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	//TODO implement me
-	return LargeurEcran, LongueurEcran
+  if *rom == "" {
+    os.Exit(1)
+  } else {
+    chip8 = cpu.NewCpu()
+	  chip8.LoadProgram(*rom)
+
+	  if err := ebiten.Run(update, 640, 320, 1, "CHIP-8"); err != nil {
+		panic(err)
+  }
+}
 }
 
 func main() {
-	// Initialisation d'Ebiten
-	ebiten.SetWindowSize(LargeurEcran, LongueurEcran)
-	ebiten.SetWindowTitle("Émulateur CHIP-8")
-
-	//Initialisation des pixels
-	initialiserPixel()
-
-	// Votre code principal ici, y compris la boucle de jeu avec Ebiten
-	if err := ebiten.RunGame(&Game{}); err != nil {
-		panic(err)
+	audioContext, _ := audio.NewContext(48000)
+	f, _ := ebitenutil.OpenFile("assets/beep.mp3")
+	d, _ := mp3.Decode(audioContext, f)
+	audioPlayer, _ = audio.NewPlayer(audioContext, d)
+	setupkeys.SetupKeys()
+  start()
 	}
-}
+
