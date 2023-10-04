@@ -7,7 +7,7 @@ import (
 
 	"image/color"
 
-  setupkeys "chip8/setupkeys"
+	setupkeys "chip8/setupkeys"
 
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/audio"
@@ -84,19 +84,19 @@ func update(screen *ebiten.Image) error {
 }
 
 func start() {
-  rom := flag.String("rom", "", "")
-  flag.Parse()
+	rom := flag.String("roms", "", "")
+	flag.Parse()
 
-  if *rom == "" {
-    os.Exit(1)
-  } else {
-    chip8 = cpu.NewCpu()
-	  chip8.LoadProgram(*rom)
+	if *rom == "" {
+		os.Exit(1)
+	} else {
+		chip8 = cpu.NewCpu()
+		chip8.LoadProgram(*rom)
 
-	  if err := ebiten.Run(update, 640, 320, 1, "CHIP-8"); err != nil {
-		panic(err)
-  }
-}
+		if err := ebiten.Run(update, 640, 320, 1, "CHIP-8"); err != nil {
+			panic(err)
+		}
+	}
 }
 
 func main() {
@@ -105,6 +105,5 @@ func main() {
 	d, _ := mp3.Decode(audioContext, f)
 	audioPlayer, _ = audio.NewPlayer(audioContext, d)
 	setupkeys.SetupKeys()
-  start()
-	}
-
+	start()
+}
