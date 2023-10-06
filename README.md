@@ -27,6 +27,6 @@ Par exemple, la commande "./main.exe -rom .\rom\1-chip8-logo.ch8" lancera la ROM
 - Cpu
 - README
 
-Le README a été rédigé par nous deux.
+
 
 
