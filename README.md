@@ -10,7 +10,12 @@ Il vous suffit d'entrer la commande suivante dans le terminal : "./main.exe -rom
 Par exemple, la commande "./main.exe -rom .\rom\1-chip8-logo.ch8" lancera la ROM "1-chip8-logo.ch8" contenue dans le répertoire "rom".
 
 
-##Caractéristiques de CHIP8Go 
+## Caractéristiques de CHIP8Go 
+  
+//remplir cet espace
+
+
+
 
 ## Répartition des tâches
 **Zineb :**
