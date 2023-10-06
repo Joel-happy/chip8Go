@@ -4,6 +4,8 @@ import "github.com/hajimehoshi/ebiten"
 
 var KeyMap map[ebiten.Key]byte
 
+// Cette fonction configure la correspondance entre les touches du clavier et les valeurs des touches de la CHIP-8.
+
 func SetupKeys() {
 	KeyMap = make(map[ebiten.Key]byte)
 	KeyMap[ebiten.Key1] = 0x01
