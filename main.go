@@ -21,7 +21,7 @@ var square *ebiten.Image      // image utilisée pour afficher des pixels
 // on initialise la variable square en créant une image de 10x10 pixels remplie de couleur noire.
 func init() {
 	square, _ = ebiten.NewImage(10, 10, ebiten.FilterNearest)
-	square.Fill(color.Black)
+	square.Fill(color.White)
 }
 
 // La fonction getInput parcourt la carte de touches définie dans le package setupkeys et
