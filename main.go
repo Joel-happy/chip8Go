@@ -2,30 +2,30 @@ package main
 
 import (
 	"chip8/cpu"
-	setupkeys "chip8/setupkeys"
-	"flag"                                     //permet de traiter les drapeaux de ligne de commande, qui sont utilisés pour spécifier un fichier ROM à charger
-	"github.com/hajimehoshi/ebiten"            //package principal de la bibliothèque de jeu Ebiten, qui sera utilisé pour créer la fenêtre de jeu et gérer les entrées
-	"github.com/hajimehoshi/ebiten/audio"      //packages Ebiten sont utilisés pour la lecture audio depuis un fichier MP3
-	"github.com/hajimehoshi/ebiten/audio/mp3"  //
-	"github.com/hajimehoshi/ebiten/ebitenutil" //  package Ebiten fournit des utilitaires pour Ebiten
+	setupkeys "chip8/setupkeys" // Configuration des touches
+	"flag"                      //Gestion des drapeaux de ligne de commande
 	"image/color"
 	"os"
+
+	"github.com/hajimehoshi/ebiten"            //Bibliothèque de jeu Ebiten, utilisé pour créer la fenêtre de jeu et gérer les entrées
+	"github.com/hajimehoshi/ebiten/audio"      //Lecture audio depuis un fichier MP3
+	"github.com/hajimehoshi/ebiten/audio/mp3"  //Support MP3 pour audio Ebiten
+	"github.com/hajimehoshi/ebiten/ebitenutil" //Utilitaires Ebiten
 )
 
-// variables globales pour le programme
+
 var chip8 cpu.Chip8           // instance de la structure chip8
 var audioPlayer *audio.Player // lecteur audio
-var square *ebiten.Image      // image utilisée pour afficher des pixels
+var square *ebiten.Image      // image  pour afficher des pixels
 
-// La fonction init est appelée automatiquement avant la main.
-// on initialise la variable square en créant une image de 10x10 pixels remplie de couleur noire.
+
+// Cette fonction initialise une image de 10x10 pixels remplie de couleur blanche.
 func init() {
 	square, _ = ebiten.NewImage(10, 10, ebiten.FilterNearest)
 	square.Fill(color.White)
 }
 
-// La fonction getInput parcourt la carte de touches définie dans le package setupkeys et
-// met à jour les touches en fonction de l'état des touches pressées dans la fenêtre de jeu.
+// Cette fonction met à jour les touches en fonction des touches pressées dans la fenêtre de jeu
 func getInput() bool {
 	for key, value := range setupkeys.KeyMap {
 		if ebiten.IsKeyPressed(key) {
@@ -36,15 +36,9 @@ func getInput() bool {
 	return false
 }
 
-/*
-**La fonction update est appelée à chaque rafraîchissement de la fenêtre de jeu (frame).
-Elle remplit l'écran de jeu en noir, puis exécute la boucle principale du jeu 10 fois par frame. Dans cette boucle principale :
-***chip8.Run() est appelé pour exécuter un cycle de la CPU de la CHIP-8.
-***getInput() est appelé pour mettre à jour l'état des touches de la CHIP-8 en fonction des touches pressées dans la fenêtre.
-**Si un dessin est requis (chip8.Draw est true) ou si aucune entrée n'a été reçue, la boucle interne dessine les pixels actifs de la CHIP-8 sur l'écran.
-**L'état des touches est mis à jour en fonction des touches pressées dans la fenêtre.
-**Si le minuteur sonore de la CHIP-8 est actif, le son est joué.
-*/
+// Cette fonction met à jour l'écran du jeu en remplissant d'abord en noir. Ensuite, exécute la boucle principale du jeu
+// pour gérer la logique de la CPU CHIP-8 et les entrées utilisateur.
+
 
 func update(screen *ebiten.Image) error {
 	screen.Fill(color.NRGBA{0x00, 0x00, 0x00, 0xff})
@@ -96,19 +90,15 @@ func update(screen *ebiten.Image) error {
 	return nil
 }
 
-/*
-La fonction start est responsable de la configuration initiale du jeu.
-Elle analyse les drapeaux de ligne de commande pour obtenir le chemin de la ROM à charger (-rom),
-puis crée une instance de la CPU CHIP-8 (cpu.NewCpu()) et
-charge la ROM spécifiée à l'aide de chip8.LoadProgram(*rom).
-Enfin, elle démarre la boucle de jeu en appelant ebiten.Run avec la fonction update
-*/
+// Cette fonction configure le jeu en chargeant la ROM spécifiée par les drapeaux de ligne de commande (-rom).
+// Crée une instance de la CPU CHIP-8 et démarre la boucle de jeu.
+
 func start() {
 	rom := flag.String("rom", "", "")
 	flag.Parse()
 
 	if *rom == "" {
-		os.Exit(0)
+		os.Exit(1)
 	} else {
 		chip8 = cpu.NewCpu()
 		chip8.LoadProgram(*rom)
@@ -119,13 +109,8 @@ func start() {
 	}
 }
 
-/*
-La fonction main point d'entrée du programme.
-Elle configure le lecteur audio en utilisant les fichiers audio spécifiés, initialise les touches de jeu avec setupkeys.SetupKeys(),
-puis démarre le jeu en appelant start().
-C'est essentiellement comment le point d'entrée de votre jeu CHIP-8 est organisé.
-N'hésitez pas à poser des questions spécifiques sur des parties de ce code si vous avez des doutes.
-*/
+// Cette fonction initialise le lecteur audio, configure les touches de jeu et lance le jeu CHIP-8.
+
 func main() {
 	audioContext, _ := audio.NewContext(48000)
 	f, _ := ebitenutil.OpenFile("assets/beep.mp3")
@@ -134,3 +119,4 @@ func main() {
 	setupkeys.SetupKeys()
 	start()
 }
+
