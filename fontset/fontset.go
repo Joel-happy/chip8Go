@@ -1,3 +1,5 @@
+//représentation graphique statique des caractères
+
 package fontset
 
 var Fontset = [80]byte{
@@ -18,4 +20,3 @@ var Fontset = [80]byte{
 	0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
 	0xF0, 0x80, 0xF0, 0x80, 0x80, // F
 }
-

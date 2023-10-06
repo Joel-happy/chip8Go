@@ -1,12 +1,11 @@
 package setupkeys
 
-import  "github.com/hajimehoshi/ebiten"
-
+import "github.com/hajimehoshi/ebiten"
 
 var KeyMap map[ebiten.Key]byte
 
 func SetupKeys() {
-  KeyMap = make(map[ebiten.Key]byte)
+	KeyMap = make(map[ebiten.Key]byte)
 	KeyMap[ebiten.Key1] = 0x01
 	KeyMap[ebiten.Key2] = 0x02
 	KeyMap[ebiten.Key3] = 0x03
@@ -23,5 +22,4 @@ func SetupKeys() {
 	KeyMap[ebiten.KeyX] = 0x00
 	KeyMap[ebiten.KeyC] = 0x0B
 	KeyMap[ebiten.KeyV] = 0x0F
-
 }
