@@ -1,15 +1,12 @@
 //logique de l'émulateur CHIP-8
-//Il s'agit d'une grande partie du cœur de l'émulateur où les instructions CHIP-8 sont interprétées et exécutées
 
 package cpu
 
 /*
-Ces instructions importent les packages nécessaires pour votre émulateur.
+Importation des packages nécessaires pour l'émulateur.
 fontset  contient le jeu de caractères de la CHIP-8,
-io pour l'entrée/sortie,
-math/rand pour la génération de nombres aléatoires,
-os pour les opérations système,
-time pour la gestion du temps
+L'entrée/sortie(io),La génération de nombres aléatoires (math/rand),
+les opérations système(os),La gestion du temps(time)
 */
 import (
 	"chip8/fontset"
@@ -19,19 +16,17 @@ import (
 	"time"
 )
 
-// déclaration de deux constantes height et width pour définir la hauteur et la largeur de l'écran de la CHIP-8.
-// Ce sont des valeurs spécifiques à la CHIP-8
+// Définir la hauteur et la largeur de l'écran .
 const (
 	height = byte(0x20)
 	width  = byte(0x40)
 )
 
 /*
-Ici, vous déclarez la structure Chip8 qui représente l'état de la machine CHIP-8.
-Elle contient des champs pour le compteur de programme (Pc),
-la mémoire, la pile,
-les registres V0 à VF,
-les timers de délai et de son, l'écran, l'état des touches, des drapeaux pour le dessin et l'entrée, et un registre pour l'entrée
+
+Déclaration de la structure Chip8 représentant l'état de la machine CHIP-8,
+incluant le compteur de programme (Pc), la mémoire, la pile, les registres V0 à VF, 
+les timers de délai et de son, l'écran, l'état des touches, des drapeaux pour le dessin et l'entrée, ainsi qu'un registre pour l'entrée.
 */
 type Chip8 struct {
 	Pc            uint16
@@ -50,8 +45,8 @@ type Chip8 struct {
 }
 
 /*
-La fonction NewCpu crée une nouvelle instance de Chip8,
-initialise le compteur de programme (Pc) à l'adresse de démarrage typique de la CHIP-8 (0x200) et charge le jeu de caractères (LoadFontSet).
+Cette fonction crée une nouvelle instance de Chip8,
+initialise le PC à l'adresse de démarrage typique de la CHIP-8 (0x200) et charge le jeu de caractères (LoadFontSet).
 */
 func NewCpu() Chip8 {
 	c := Chip8{Pc: 0x200}
@@ -59,14 +54,14 @@ func NewCpu() Chip8 {
 	return c
 }
 
-// La fonction LoadFontSet charge le jeu de caractères de la CHIP-8 dans la mémoire de l'émulateur.
+// Cette fonction charge le jeu de caractères de la CHIP-8 dans la mémoire de l'émulateur.
 func (c *Chip8) LoadFontSet() {
 	for i := 0x00; i < 0x50; i++ {
 		c.Memory[i] = fontset.Fontset[i]
 	}
 }
 
-// La fonction ClearDisplay efface l'écran en initialisant tous les pixels à 0.
+// Cette fonction efface l'écran en initialisant tous les pixels à 0.
 func (c *Chip8) ClearDisplay() {
 	for x := 0x00; x < 0x20; x++ {
 		for y := 0x00; y < 0x40; y++ {
@@ -76,9 +71,8 @@ func (c *Chip8) ClearDisplay() {
 }
 
 /*
-La fonction LoadProgram charge un fichier ROM (jeu) dans la mémoire de la CHIP-8 à partir du chemin spécifié.
-Elle ouvre le fichier, lit son contenu,
-puis le copie dans la mémoire de l'émulateur à partir de l'adresse 0x200.
+Cette fonction ouvre et lit un fichier ROM, 
+puis copie son contenu dans la mémoire de la CHIP-8, en commençant à l'adresse 0x200.
 */
 func (c *Chip8) LoadProgram(rom string) int {
 	f, err := os.Open(rom)
@@ -99,7 +93,7 @@ func (c *Chip8) LoadProgram(rom string) int {
 	return n
 }
 
-// La fonction Reset réinitialise complètement l'état de la machine CHIP-8, remettant tous les registres et la mémoire à zéro
+// Cette fonction réinitialise complètement l'état de la machine CHIP-8, remettant tous les registres et la mémoire à zéro
 func (c *Chip8) Reset() {
 	c.Pc = 0x200
 	c.DelayTimer = 0
@@ -125,7 +119,7 @@ func (c *Chip8) Reset() {
 	c.ClearDisplay()
 }
 
-//La fonction Run est appelée à chaque rafraîchissement de la fenêtre de jeu.
+//Cette fonction est appelée à chaque rafraîchissement de la fenêtre de jeu.
 //Elle exécute un cycle de la machine CHIP-8 (RunCpuCycle) et gère les timers de délai et de son.
 
 func (c *Chip8) Run() {
@@ -140,8 +134,8 @@ func (c *Chip8) Run() {
 	}
 }
 
-//La fonction RunCpuCycle est l'endroit où toutes les instructions de la CHIP-8 sont interprétées et exécutées.
-//Elle lit un opcode depuis la mémoire, décode l'instruction et effectue les actions appropriées.
+//Cette fonction interprète et exécute toutes les instructions de la CHIP-8. 
+//Elle lit un opcode depuis la mémoire, le décode et effectue les actions correspondantes.
 
 func (c *Chip8) RunCpuCycle() {
 	opcode := uint16(c.Memory[c.Pc])<<8 | uint16(c.Memory[c.Pc+1])
