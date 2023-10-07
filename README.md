@@ -12,9 +12,19 @@ Par exemple, la commande "./main.exe -rom .\rom\1-chip8-logo.ch8" lancera la ROM
 
 ## Caractéristiques de CHIP8Go 
   
-//remplir cet espace
-
-
+-Émulateur CHIP-8 en Golang.
+-Basé sur la machine virtuelle de jeu rétro CHIP-8.
+-Supporte les ROMs CHIP-8.
+-Chargement et exécution de ROMs depuis la ligne de commande.
+-Prise en charge des jeux rétro et de la programmation amateur.
+-Interface utilisateur graphique basée sur la bibliothèque Ebiten pour afficher les graphismes.
+-Gestion des entrées clavier pour émuler les entrées de la CHIP-8.
+-Émulation des caractères de la CHIP-8 à l'aide d'un ensemble de polices intégré.
+-Gestion des timers de délai et de son de la CHIP-8.
+-Capacité à réinitialiser l'état de la machine CHIP-8.
+-Exécution des instructions de la CHIP-8 et interprétation des opcodes.
+-Affichage de l'écran de jeu CHIP-8 avec possibilité de dessiner des pixels.
+-Émulation de la fonction sonore de la CHIP-8 avec lecture audio MP3.
 
 
 ## Répartition des tâches
@@ -31,7 +41,3 @@ Par exemple, la commande "./main.exe -rom .\rom\1-chip8-logo.ch8" lancera la ROM
 - Main
 - Cpu
 - README
-
-
-
-
